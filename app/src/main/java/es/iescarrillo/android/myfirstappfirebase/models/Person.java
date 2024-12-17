@@ -13,6 +13,9 @@ public class Person implements Serializable {
     private String name;
     private String surname;
     private Integer age;
+    private String email;
+    private String provider;
+    private String uid;
     private List<Address> addresses;
 
     public Person(){
@@ -60,6 +63,30 @@ public class Person implements Serializable {
         this.addresses = addresses;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
     @Override
     public String toString() {
         return "Person{" +
@@ -67,7 +94,10 @@ public class Person implements Serializable {
                 ", name='" + name + '\'' +
                 ", surname='" + surname + '\'' +
                 ", age=" + age +
-                ", addresses=" + addresses.toString() +
+                ", email='" + email + '\'' +
+                ", provider='" + provider + '\'' +
+                ", uid='" + uid + '\'' +
+                ", addresses=" + addresses +
                 '}';
     }
 }
