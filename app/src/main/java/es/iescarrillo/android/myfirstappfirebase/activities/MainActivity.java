@@ -1,12 +1,14 @@
 package es.iescarrillo.android.myfirstappfirebase.activities;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -15,6 +17,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -33,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ListView lvPersons;
     private Button btnAddPerson;
+    private TextView tvCurrentUser;
     private List<Person> persons;
     private PersonAdapter personAdapter;
 
@@ -48,21 +53,29 @@ public class MainActivity extends AppCompatActivity {
         });
 
         loadComponents();
+        loadCurrentUser();
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference reference = database.getReference("persons");
 
+        /* Añadimos el listener, el cuál esta´ra en continua ejecución esperando que la BBDD le
+        * informe si se ha producido un cambio en los valores del nodo
+        */
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                // Limpiamos los datos de la lista, sino se duplicarán
                 persons.clear();
 
+                // Para cada nodo hijo, lo castearemos y lo añadiremos a la lista del Adapter
                 snapshot.getChildren().forEach(person -> {
                     Log.i("Persona lambda", Objects.requireNonNull(person.getValue(Person.class)).toString());
                     persons.add(person.getValue(Person.class));
                 });
 
+                // Actualizamos el adapter
                 personAdapter = new PersonAdapter(getApplicationContext(), persons);
+                // Actualizamos el listView
                 lvPersons.setAdapter(personAdapter);
             }
 
@@ -100,9 +113,22 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void loadCurrentUser(){
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            String email = user.getEmail();
+            String uid = user.getUid();
+
+            tvCurrentUser.setText(email);
+        } else {
+            tvCurrentUser.setVisibility(View.GONE);
+        }
+    }
+
     private void loadComponents(){
         lvPersons = findViewById(R.id.lvPersons);
         btnAddPerson = findViewById(R.id.btnAddPerson);
+        tvCurrentUser = findViewById(R.id.tvCurrentUser);
         persons = new ArrayList<>();
     }
 }

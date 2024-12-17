@@ -11,4 +11,5 @@
     <string name="password">Password</string>
     <string name="login">Login</string>
     <string name="sign_up">Sign up</string>
+    <string name="current_user">Current User</string>
 </resources>
