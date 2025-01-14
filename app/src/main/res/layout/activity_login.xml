@@ -111,4 +111,21 @@
 
     </LinearLayout>
 
+    <Button
+        android:id="@+id/btnGoogle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="40dp"
+        android:textSize="20sp"
+        android:textColor="@color/black"
+        android:text="@string/google"
+        android:padding="10dp"
+        android:drawableLeft="@drawable/common_google_signin_btn_icon_light"
+        android:backgroundTint="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

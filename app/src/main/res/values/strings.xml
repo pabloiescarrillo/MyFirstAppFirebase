@@ -12,4 +12,14 @@
     <string name="login">Login</string>
     <string name="sign_up">Sign up</string>
     <string name="current_user">Current User</string>
+    <string name="exit">Exit</string>
+    <string name="email_blank">Email is blank</string>
+    <string name="password_blank">Password is blank</string>
+    <string name="login_successfull">Login successfull</string>
+    <string name="invalid_email_or_password">Invalid email or password</string>
+    <string name="logout_successfull">Logout successfull</string>
+    <string name="google">Sign up using Google</string>
+    <string name="default_web_client_id">198627184492-qfr9pgf8u2qlklpilelkgm3914c30n5n.apps.googleusercontent.com</string>
+    <string name="error">An error has ocurred</string>
+    <string name="error_google_sign_in">Google sign in failed</string>
 </resources>

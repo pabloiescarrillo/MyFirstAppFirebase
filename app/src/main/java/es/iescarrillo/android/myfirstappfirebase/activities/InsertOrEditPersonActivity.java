@@ -25,6 +25,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 import es.iescarrillo.android.myfirstappfirebase.R;
 import es.iescarrillo.android.myfirstappfirebase.models.Person;
+import es.iescarrillo.android.myfirstappfirebase.models.Provider;
 import es.iescarrillo.android.myfirstappfirebase.services.PersonService;
 
 public class InsertOrEditPersonActivity extends AppCompatActivity {
@@ -40,6 +41,8 @@ public class InsertOrEditPersonActivity extends AppCompatActivity {
     // Servicios que vamos a usar en el Activity
     private PersonService personService;
 
+    private FirebaseUser currentUser;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +55,7 @@ public class InsertOrEditPersonActivity extends AppCompatActivity {
         });
 
         loadComponents();
+        loadCurrentUser();
 
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,10 +93,7 @@ public class InsertOrEditPersonActivity extends AppCompatActivity {
                     Intent intent = new Intent(InsertOrEditPersonActivity.this, MainActivity.class);
                     startActivity(intent);
 
-                } else {
-                    // Creamos la nueva persona
-                    Person person = new Person();
-
+                } else if (!editMode && currentUser == null){
                     if (etName.getText().toString().isBlank()) {
                         Toast.makeText(InsertOrEditPersonActivity.this, "Name is blank", Toast.LENGTH_SHORT).show();
                         return; // Para salir del listener
@@ -110,31 +111,14 @@ public class InsertOrEditPersonActivity extends AppCompatActivity {
                         return;
                     }
 
-                    if (!etAge.getText().toString().isBlank())
-                        person.setAge(Integer.valueOf(etAge.getText().toString()));
-
                     FirebaseAuth mAuth = FirebaseAuth.getInstance();
                     mAuth.createUserWithEmailAndPassword(etEmail.getText().toString(), etPassword.getText().toString())
                             .addOnCompleteListener(InsertOrEditPersonActivity.this, new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if(task.isSuccessful()){
-                                FirebaseUser user = mAuth.getCurrentUser();
-
-                                // Seteamos los valores con los introducidos en la pantalla y los que devuelve la autenticación
-                                person.setName(etName.getText().toString());
-                                person.setSurname(etSurname.getText().toString());
-                                person.setEmail(user.getEmail());
-                                person.setUid(user.getUid());
-                                person.setProvider(user.getProviderId());
-
-                                String idPerson = personService.insert(person);
-                                Toast.makeText(InsertOrEditPersonActivity.this, "Person with id " + idPerson + " inserted", Toast.LENGTH_SHORT).show();
-                                Log.i("Person id", idPerson);
-
-                                Intent intent = new Intent(InsertOrEditPersonActivity.this, MainActivity.class);
-                                startActivity(intent);
-
+                                currentUser = mAuth.getCurrentUser();
+                                createUserInRealTimeModule(Provider.EMAIL);
                             } else {
                                 Toast.makeText(InsertOrEditPersonActivity.this, "Registration failed.",
                                         Toast.LENGTH_SHORT).show();
@@ -142,6 +126,8 @@ public class InsertOrEditPersonActivity extends AppCompatActivity {
                         }
                     });
 
+                } else {
+                    createUserInRealTimeModule(Provider.GOOGLE);
                 }
             }
         });
@@ -167,6 +153,35 @@ public class InsertOrEditPersonActivity extends AppCompatActivity {
                 });
             }
         });
+    }
+
+    private void createUserInRealTimeModule(Provider provider){// Seteamos los valores con los introducidos en la pantalla y los que devuelve la autenticación
+        // Creamos la nueva persona
+        Person person = new Person();
+
+        person.setName(etName.getText().toString());
+        person.setSurname(etSurname.getText().toString());
+        person.setEmail(currentUser.getEmail());
+        person.setUid(currentUser.getUid());
+        person.setProvider(provider.toString());
+
+        if (!etAge.getText().toString().isBlank())
+            person.setAge(Integer.valueOf(etAge.getText().toString()));
+
+        String idPerson = personService.insert(person);
+        Toast.makeText(InsertOrEditPersonActivity.this, "Person with id " + idPerson + " inserted", Toast.LENGTH_SHORT).show();
+        Log.i("Person id", idPerson);
+
+        Intent intent = new Intent(InsertOrEditPersonActivity.this, MainActivity.class);
+        startActivity(intent);
+    }
+
+    private void loadCurrentUser() {
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if(currentUser != null){
+            etEmail.setText(currentUser.getEmail());
+            etPassword.setVisibility(View.GONE);
+        }
     }
 
     private void loadComponents(){

@@ -9,6 +9,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -17,6 +18,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.gms.auth.api.identity.Identity;
+import com.google.android.gms.auth.api.identity.SignInClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -36,7 +39,7 @@ import es.iescarrillo.android.myfirstappfirebase.models.Person;
 public class MainActivity extends AppCompatActivity {
 
     private ListView lvPersons;
-    private Button btnAddPerson;
+    private Button btnAddPerson, btnLogout;
     private TextView tvCurrentUser;
     private List<Person> persons;
     private PersonAdapter personAdapter;
@@ -96,6 +99,18 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        btnLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseAuth.getInstance().signOut();
+                signOutGoogleClient();
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                Toast.makeText(getApplicationContext(), R.string.logout_successfull, Toast.LENGTH_SHORT);
+                startActivity(intent);
+                finish();
+            }
+        });
+
         lvPersons.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -113,6 +128,14 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void signOutGoogleClient() {
+        SignInClient oneTapClient = Identity.getSignInClient(this);
+
+        oneTapClient.signOut().addOnCompleteListener(task -> {
+            Log.d("SignOut", "Usuario cerrado sesión de Google.");
+        });
+    }
+
     private void loadCurrentUser(){
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
@@ -128,7 +151,9 @@ public class MainActivity extends AppCompatActivity {
     private void loadComponents(){
         lvPersons = findViewById(R.id.lvPersons);
         btnAddPerson = findViewById(R.id.btnAddPerson);
+        btnLogout = findViewById(R.id.btnLogout);
         tvCurrentUser = findViewById(R.id.tvCurrentUser);
         persons = new ArrayList<>();
     }
+
 }
